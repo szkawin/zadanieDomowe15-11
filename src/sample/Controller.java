@@ -5,51 +5,126 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import java.time.LocalDate;
+
+import static java.time.temporal.ChronoUnit.YEARS;
 
 public class Controller {
 
-    public TextField textfield;
+
     public TableView<Czlowieczek> table;
+    public TextField textfieldWzrost;
+    public TextField textfieldPESEL;
+    public TextField textfieldSurname;
+    public TextField textfieldName;
+
+    public void handleDodaj(ActionEvent actionEvent) {
+
+        try {
+
+            Czlowieczek człowieczek = new Czlowieczek(
+                    textfieldName.getText(),
+                    textfieldSurname.getText(),
+                    textfieldPESEL.getText(),
+                    Integer.parseInt(textfieldWzrost.getText()));
+
+            table.getItems().add(człowieczek);
+        }
+        catch(Exception e)
+        {
+            System.out.println("Oops!");
+        }
+    }
+
+    public void handleKasuj(ActionEvent actionEvent) {
+    }
 
     public static class Czlowieczek {
 
-        protected String imie;
+        protected String name;
         protected Integer wiek;
+        protected String nazwisko;
+        protected String pesel;
+        protected Integer wzrost;
 
-        public Czlowieczek(String imie, Integer wiek) {
-            this.imie = imie;
-            this.wiek = wiek;
+
+        public Czlowieczek(String name, String nazwisko, String pesel, Integer wzrost) {
+            this.name = name;
+            this.nazwisko = nazwisko;
+            this.wiek = wyliczWiek(pesel);
+            this.pesel = pesel;
+            this.wzrost = wzrost;
+
         }
 
-        public String getImie() {
-            return imie;
+        private static Integer wyliczWiek(String pesel) {
+            String napispesel = pesel;
+            int rok = Integer.parseInt(napispesel.substring(0,2));
+            int miesiąc = Integer.parseInt(napispesel.substring(2,4));
+            int dzień = Integer.parseInt(napispesel.substring(4,6));
+            if (miesiąc > 80) {
+                miesiąc = miesiąc-80;
+                rok = rok+1800; // :)
+            }else if(miesiąc > 60){
+                miesiąc = miesiąc-60;
+                rok = rok+2200;
+            }else if(miesiąc > 40){
+                miesiąc = miesiąc-40;
+                rok = rok+2100;
+            }else if(miesiąc > 20){
+                miesiąc = miesiąc-20;
+                rok = rok+2000;
+            }else{
+                miesiąc = miesiąc; //co jest, to jest; niemożliwe, aby coś było i nie było
+                rok = rok+1900;
+            }
+
+            LocalDate dataUrodzenia = LocalDate.of(rok, miesiąc, dzień);
+            LocalDate teraz = LocalDate.now();
+
+            return (int) dataUrodzenia.until(teraz, YEARS);
+
+
         }
 
-        public void setImie(String imie) {
-            this.imie = imie;
+
+        public String getName() {
+            return name;
         }
+
+        public String getNazwisko() {return nazwisko;}
 
         public Integer getWiek() {
             return wiek;
         }
 
-        public void setWiek(Integer wiek) {
-            this.wiek = wiek;
-        }
+        public String getPesel() {return pesel;}
+
+        public Integer getWzrost() {return wzrost;}
+
+
+
+
     }
 
-    public void handleClick(ActionEvent actionEvent) {
-        table.getItems().add(new Czlowieczek(textfield.getText(), textfield.getText().length()));
-    }
 
     public void initialize() {
         for (TableColumn<Czlowieczek, ?> column : table.getColumns()) {
-            if ("napis".equals(column.getId())) {
+            if ("name".equals(column.getId())) {
                 TableColumn<Czlowieczek, String> textColumn = (TableColumn<Czlowieczek, String>) column;
-                textColumn.setCellValueFactory(new PropertyValueFactory<>("imie"));
-            } else if ("dlugosc".equals(column.getId())) {
-                TableColumn<Czlowieczek, Integer> lengthColumn = (TableColumn<Czlowieczek, Integer>) column;
-                lengthColumn.setCellValueFactory(new PropertyValueFactory<>("wiek"));
+                textColumn.setCellValueFactory(new PropertyValueFactory<Czlowieczek, String>("name"));
+            } else if ("pesel".equals(column.getId())) {
+                TableColumn<Czlowieczek, String> lengthColumn = (TableColumn<Czlowieczek, String>) column;
+                lengthColumn.setCellValueFactory(new PropertyValueFactory<Czlowieczek, String>("pesel"));
+            } else if ("surname".equals(column.getId())) {
+                TableColumn<Czlowieczek, String> textColumn = (TableColumn<Czlowieczek, String>) column;
+                textColumn.setCellValueFactory(new PropertyValueFactory<Czlowieczek, String>("nazwisko"));
+            } else if ("wzrost".equals(column.getId())) {
+                TableColumn<Czlowieczek, Integer> textColumn = (TableColumn<Czlowieczek, Integer>) column;
+                textColumn.setCellValueFactory(new PropertyValueFactory<Czlowieczek, Integer>("wzrost"));
+            } else if ("wiek".equals(column.getId())) {
+                TableColumn<Czlowieczek, Integer> textColumn = (TableColumn<Czlowieczek, Integer>) column;
+                textColumn.setCellValueFactory(new PropertyValueFactory<Czlowieczek, Integer>("wiek"));
             }
         }
         /*for (TableColumn<String, ?> column : table.getColumns()) {
