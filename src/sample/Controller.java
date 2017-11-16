@@ -1,10 +1,10 @@
 package sample;
 
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.event.ActionEvent;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+
 import java.time.LocalDate;
 
 import static java.time.temporal.ChronoUnit.YEARS;
@@ -125,6 +125,29 @@ public class Controller {
             } else if ("wiek".equals(column.getId())) {
                 TableColumn<Czlowieczek, Integer> textColumn = (TableColumn<Czlowieczek, Integer>) column;
                 textColumn.setCellValueFactory(new PropertyValueFactory<Czlowieczek, Integer>("wiek"));
+            } else if("usun".equals(column.getId())) {
+                TableColumn<Czlowieczek, Czlowieczek> usunCol = (TableColumn<Czlowieczek, Czlowieczek>) column;
+                usunCol.setCellValueFactory(
+                        param -> new ReadOnlyObjectWrapper<>(param.getValue())
+                );
+                usunCol.setCellFactory(param -> new TableCell<Czlowieczek, Czlowieczek>() {
+                    private final Button deleteButton = new Button("Delete");
+
+                    @Override
+                    protected void updateItem(Czlowieczek person, boolean empty) {
+                        super.updateItem(person, empty);
+
+                        if (person == null) {
+                            setGraphic(null);
+                            return;
+                        }
+
+                        setGraphic(deleteButton);
+                        deleteButton.setOnAction(
+                                event -> getTableView().getItems().remove(person)
+                        );
+                    }
+                });
             }
         }
         /*for (TableColumn<String, ?> column : table.getColumns()) {
